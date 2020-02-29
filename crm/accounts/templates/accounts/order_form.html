@@ -3,11 +3,16 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="card card-body">
             <form action="" method="POST">
                 {% csrf_token %}
-                {{order_form}}
+                <!-- To render our form the right way to avoid any error when we are using formset -->
+                {{ formset.management_form }}
+                {% for form in formset %}
+                {{form}}
+                <hr>
+                {% endfor %}
                 <button class="btn btn-success" type="submit">Confirm</button>
             </form>
         </div>

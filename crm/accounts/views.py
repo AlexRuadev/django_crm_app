@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+# allow us to create multiple forms from only one form
+from django.forms import inlineformset_factory
 
 from .models import *
 from .forms import OrderForm
+from .filters import OrderFilter
 
 # Create your views here.
 
@@ -37,22 +40,36 @@ def customer(request, pk_customer):
     orders = customer.order_set.all()
     order_count = orders.count()
 
+    # we query the orders, throw them in the filter, make a request to filter down
+    myFilter = OrderFilter(request.GET, queryset=orders)
+    orders = myFilter.qs
+
     context = {'customer': customer,
-               'orders': orders, 'order_count': order_count}
+               'orders': orders, 'order_count': order_count, 'myFilter': myFilter}
     return render(request, 'accounts/customer.html', context)
 
 
-def createOrder(request):
-    order_form = OrderForm()
+def createOrder(request, pk):
+    # Create the instance of our FormSet, We need to pass first the parent Model, and then the child Model, and which fields for the child object
+    # Extra allows us to choose how many fields we want
+    OrderFormSet = inlineformset_factory(
+        Customer, Order, fields=('product', 'status'), extra=3)
+
+    customer = Customer.objects.get(id=pk)
+    # The query set allows us to hide the firsts few fields which are pre-filled
+    formset = OrderFormSet(queryset=Order.objects.none(), instance=customer)
+
+    # order_form = OrderForm(initial={'customer': customer})
     # we sending our form with POST
     if request.method == 'POST':
         # print('Printing POST:', request.POST)
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            form.save()
+        # form = OrderForm(request.POST)
+        formset = OrderFormSet(request.POST, instance=customer)
+        if formset.is_valid():
+            formset.save()
             return redirect('/')
 
-    context = {'order_form': order_form}
+    context = {'formset': formset}
     return render(request, 'accounts/order_form.html', context)
 
 
