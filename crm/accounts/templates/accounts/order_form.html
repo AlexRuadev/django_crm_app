@@ -1,0 +1,17 @@
+{% extends 'accounts/main_include.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-body">
+            <form action="" method="POST">
+                {% csrf_token %}
+                {{order_form}}
+                <button class="btn btn-success" type="submit">Confirm</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
