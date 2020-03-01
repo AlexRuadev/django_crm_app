@@ -7,14 +7,33 @@
     height: auto;
 }
 
+.hello-msg {
+    color: white;
+    margin-right: 20px;
+    font-size: 18px;
+}
+
+.logout-button {
+    color: white;
+    font-size: 18px;
+}
+
+.logout-button:hover {
+    color: white;
+    text-decoration: inherit;
+}
+
+
+span.username {
+    text-transform: capitalize;
+}
+
 body {
     background-color: #ebeff5;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
-    margin-width: 0;
-    margin-height: 0;
 }
 
 #total-orders {

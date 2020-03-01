@@ -16,4 +16,7 @@
       </li>
     </ul>
   </div>
+  <span class="hello-msg">Hello, <span class="username">{{request.user}}</span> </span>
+  <span><button class="btn btn-danger">
+      <a class="logout-button" href="{% url 'logout' %}">Logout</a></button></span>
 </nav>
