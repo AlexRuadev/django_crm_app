@@ -8,12 +8,15 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
+      <!-- If the user is staff, show them these nav items, otherwise, don't -->
+      {% if request.user.is_staff %}
       <li class="nav-item active">
         <a class="nav-link" href="{% url 'home' %}">Dashboard</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'products' %}">Products</a>
       </li>
+      {% endif %}
     </ul>
   </div>
   <span class="hello-msg">Hello, <span class="username">{{request.user}}</span> </span>

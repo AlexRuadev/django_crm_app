@@ -9,51 +9,57 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 # To manage permissions and access to pages when user isn't logged in
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 
 from .models import *
 from .forms import OrderForm, CreateUserForm
 from .filters import OrderFilter
+from .decorators import unauthenticated_user, allowed_users, admin_only
 
 # Create your views here.
+
+
+@unauthenticated_user
 def registerPage(request):
     # If user is authenticated, redicrect to home when try to access registerPage
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        form = CreateUserForm()
 
-        if request.method == 'POST':
-            form = CreateUserForm(request.POST)
-            if form.is_valid():
-                form.save()
-                # Get the username and store in user variable
-                user = form.cleaned_data.get('username')
-                messages.success(request, 'Account was created for ' + user )
-                return redirect('login')
+    form = CreateUserForm()
 
-    context={'form': form}
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Get the username and store in user variable
+            username = form.cleaned_data.get('username')
+
+            # When a customer signup , we add it to the group customer
+            group = Group.objects.get(name='customer')
+            user.groups.add(group)
+
+            messages.success(request, 'Account was created for ' + username)
+            return redirect('login')
+
+    context = {'form': form}
     return render(request, 'accounts/register.html', context)
 
 
+@unauthenticated_user
 def loginPage(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        # if POST method, we get username and password
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
+    # if POST method, we get username and password
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
-            user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password)
 
-            if user is not None:
-                login(request, user)
-                return redirect('home')
-            else:
-                messages.info(request, 'Username or password is incorrect')
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.info(request, 'Username or password is incorrect')
 
-        context={}
-        return render(request, 'accounts/login.html', context)
+    context = {}
+    return render(request, 'accounts/login.html', context)
 
 
 def logoutUser(request):
@@ -62,6 +68,7 @@ def logoutUser(request):
 
 
 @login_required(login_url='login')
+@admin_only
 def home(request):
     #  Quering our orders and customers
     orders = Order.objects.all()
@@ -80,7 +87,13 @@ def home(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
+def userPage(request):
+    context = {}
+    return render(request, 'accounts/user.html', context)
+
+
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def products(request):
     # Check our database and query all products
     products = Product.objects.all()
@@ -88,6 +101,7 @@ def products(request):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def customer(request, pk_customer):
     customer = Customer.objects.get(id=pk_customer)
 
@@ -104,6 +118,7 @@ def customer(request, pk_customer):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def createOrder(request, pk):
     # Create the instance of our FormSet, We need to pass first the parent Model, and then the child Model, and which fields for the child object
     # Extra allows us to choose how many fields we want
@@ -129,6 +144,7 @@ def createOrder(request, pk):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def updateOrder(request, pk):
     order = Order.objects.get(id=pk)
     order_form = OrderForm(instance=order)
@@ -145,6 +161,7 @@ def updateOrder(request, pk):
 
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def deleteOrder(request, pk):
     order = Order.objects.get(id=pk)
     if request.method == 'POST':
