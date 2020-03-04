@@ -125,3 +125,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+# Profile image will be saved in this file
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')

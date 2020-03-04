@@ -1,0 +1,42 @@
+{% extends 'accounts/main_include.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .profile-pic {
+        max-width: 200px;
+        max-height: 200px;
+        margin: 0 auto;
+        border-radius: 50%;
+    }
+</style>
+
+<br>
+<div class="row">
+    <div class="col-md-3">
+        <div class="card card-body">
+            <a class="btn btn-warning" href="{% url 'home' %}"> &#8592; Back to Profile</a>
+            <hr>
+            <h3 style="text-align: center">Account Settings</h3>
+            <hr>
+            <img class="profile-pic" src="{{request.user.customer.profile_pic.url}}">
+
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card card-body">
+
+            <!-- We sending files or image so we need to use enctype -->
+            <form method="POST" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{form.as_p}}
+
+                <button class="btn btn-primary" type="submit">Update Informations</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

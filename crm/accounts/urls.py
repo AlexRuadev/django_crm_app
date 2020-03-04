@@ -10,6 +10,7 @@ urlpatterns = [
     # Using a name for our path gives us better routing in our html
     path('', views.home, name="home"),
     path('user/', views.userPage, name="user-page"),
+    path('account/', views.accountSettings, name="account"),
     path('products/', views.products, name='products'),
     # Dynamic routing, pk_customer is the parameter we put in our views, customer
     path('customer/<str:pk_customer>', views.customer, name="customer"),
